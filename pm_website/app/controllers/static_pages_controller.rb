@@ -7,4 +7,8 @@ class StaticPagesController < ApplicationController
 
   def Documentation
   end
+
+  def Support
+  end
+
 end
