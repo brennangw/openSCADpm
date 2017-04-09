@@ -6,29 +6,13 @@
     <%= stylesheet_link_tag    'application', media: 'all',
                                               'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <!--[if lt IE 9]>
-      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js">
-      </script>
-    <![endif]-->
+    <%= render 'layouts/shim' %>
   </head>
   <body>
-    <header class="navbar navbar-fixed-top navbar-inverse">
-      <div class="container">
-        <%= image_tag("OpenSCAD-logo-2.png", :alt => "OpenSCAD logo", id: "logo1") %>
-        <%= link_to "OpenSCAD", '#', id: "logo2" %>
-        <nav>
-          <ul class="nav navbar-nav navbar-right" id ="top_bar">
-            <li><%= link_to "Home",   '#' %></li>
-            <li><%= link_to "OpenSCADpm",   '#' %></li>
-            <li><%= link_to "Documentation",   '#' %></li>
-            <li><%= link_to "Support",   '#' %></li>
-            <li><%= link_to "Log in", '#' %></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+    <%= render 'layouts/header' %>
     <div class="container">
       <%= yield %>
+      <%= render 'layouts/footer' %>
     </div>
   </body>
 </html>
