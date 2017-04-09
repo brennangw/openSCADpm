@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
-  get 'static_pages/home'
-
-  get 'static_pages/OpenScadpm'
-
-  get 'static_pages/Documentation'
-
-  get 'static_pages/Support'
 
   root 'static_pages#home'
+
+  get  '/openscadpm',    to: 'static_pages#OpenScadpm'
+
+  get  '/documentation',    to: 'static_pages#Documentation'
+
+  get  '/support',    to: 'static_pages#Support'
+
 end

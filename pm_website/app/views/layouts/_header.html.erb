@@ -1,13 +1,13 @@
 <header class="navbar navbar-fixed-top navbar-inverse">
 <div class="container">
 <%= image_tag("OpenSCAD-logo-2.png", :alt => "OpenSCAD logo", id: "logo1") %>
-<%= link_to "OpenSCAD", '#', id: "logo2" %>
+<%= link_to "OpenSCAD", root_path, id: "logo2" %>
 <nav>
   <ul class="nav navbar-nav navbar-right" id ="top_bar">
-    <li><%= link_to "Home",   '#' %></li>
-    <li><%= link_to "OpenSCADpm",   '#' %></li>
-    <li><%= link_to "Documentation",   '#' %></li>
-    <li><%= link_to "Support",   '#' %></li>
+    <li><%= link_to "Home",   root_path %></li>
+    <li><%= link_to "OpenSCADpm",   openscadpm_path %></li>
+    <li><%= link_to "Documentation",   documentation_path %></li>
+    <li><%= link_to "Support",   support_path %></li>
     <li><%= link_to "Log in", '#' %></li>
   </ul>
 </nav>
