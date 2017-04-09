@@ -8,4 +8,6 @@ Rails.application.routes.draw do
 
   get  '/support',    to: 'static_pages#Support'
 
+  get  '/signup', to: 'users#new'
+
 end
