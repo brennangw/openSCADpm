@@ -49,6 +49,25 @@ $gray-medium-light: #eaeaea;
   padding-top: 10px;
 }
 
+/* search bar */
+
+
+#search_form {
+  float: left;
+  margin-right: 10px;
+  font-size: 1.7em;
+  color: black;
+  letter-spacing: -1px;
+  padding-top: 20px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+#search_form:hover {
+  color: black;
+  text-decoration: none;
+}
+
 /* universal */
 
 body {
