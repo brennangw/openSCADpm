@@ -11,4 +11,7 @@ class StaticPagesController < ApplicationController
   def Support
   end
 
+  def Packages
+  end
+
 end
