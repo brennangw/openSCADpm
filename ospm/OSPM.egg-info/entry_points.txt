@@ -1,0 +1,3 @@
+[console_scripts]
+ospm = ospm.main:start
+
