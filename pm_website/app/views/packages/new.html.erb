@@ -4,6 +4,8 @@
 <div class="row">
   <div class="col-md-6 col-md-offset-3">
     <%= form_for(@package, url: newpackage_path) do |f| %>
+      <%= render 'packages/error_messages' %>
+
       <%= f.label :name %>
       <%= f.text_field :name %>
 
