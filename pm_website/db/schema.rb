@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170423201319) do
+ActiveRecord::Schema.define(version: 20170423202737) do
 
   create_table "packages", force: :cascade do |t|
     t.string   "name"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 20170423201319) do
     t.datetime "updated_at",   null: false
     t.text     "package_info"
     t.string   "link"
+    t.index ["link"], name: "index_packages_on_link", unique: true
   end
 
   create_table "users", force: :cascade do |t|
