@@ -1,4 +1,9 @@
 class PackagesController < ApplicationController
+  before_action :logged_in_user, only: [:index, :edit]
+  def index
+    @packages = Package.all
+  end
+
   def show
     @package = Package.find(params[:id])
   end
@@ -17,10 +22,22 @@ class PackagesController < ApplicationController
     end
   end
 
+  def edit
+    @package = Packages.find(params[:id])
+  end
+
   private
 
     def package_params
       params.require(:package).permit(:name, :link, :package_info)
+    end
+
+    # Confirms a logged-in user.
+    def logged_in_user
+      unless logged_in?
+        flash[:danger] = "Please log in."
+        redirect_to login_url
+      end
     end
 end
 

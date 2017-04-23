@@ -10,7 +10,7 @@ Rails.application.routes.draw do
 
   get  '/documentation',    to: 'static_pages#Documentation'
 
-  get  '/packages',    to: 'static_pages#Packages'
+
 
   get  '/support',    to: 'static_pages#Support'
 
