@@ -1,0 +1,7 @@
+case "$1" in
+    "library" )
+        echo "lib"
+        ;;
+     *)
+        echo "command not found";
+esac
