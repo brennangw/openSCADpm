@@ -1,7 +1,16 @@
+function library {
+	if [[ "$1" == "save" ]]; then
+		echo $2 > /usr/local/lib/ospmLibSettings
+	else
+		echo "Module library is:"
+			cat /usr/local/lib/ospmLibSettings
+        fi
+
+}
 case "$1" in
-    "library" )
-        echo "lib"
-        ;;
-     *)
-        echo "command not found";
+	"library" )
+     		library $2 $3
+		;; 
+	*)
+        	echo "command not found"; 
 esac
