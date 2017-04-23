@@ -10,7 +10,8 @@ class PackagesController < ApplicationController
   def create
     @package = Package.new(package_params) 
     if @package.save
-      # Handle a successful save.
+      flash[:success] = "Package was successfully added!"
+      redirect_to @package
     else
       render 'new'
     end
