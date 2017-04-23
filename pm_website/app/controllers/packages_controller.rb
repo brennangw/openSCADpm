@@ -1,7 +1,7 @@
 class PackagesController < ApplicationController
   before_action :logged_in_user, only: [:edit]
   def index
-    @packages = Package.all
+    @packages = Package.paginate(page: params[:page])
   end
 
   def show
