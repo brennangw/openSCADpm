@@ -1,0 +1,20 @@
+<% provide(:title, 'New Package') %>
+<h1>Add Package</h1>
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <%= form_for(@package, url: newpackage_path) do |f| %>
+      <%= f.label :name %>
+      <%= f.text_field :name %>
+
+      <%= f.label :link %>
+      <%= f.text_field :link %>
+
+      <%= f.label :package_info %>
+      <%= f.text_field :package_info %>
+
+      <%= f.submit "Add Package", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+

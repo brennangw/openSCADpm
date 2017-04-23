@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get 'packages/new'
+
   get 'sessions/new'
 
   root 'static_pages#home'
@@ -22,6 +24,12 @@ Rails.application.routes.draw do
 
   delete '/logout',  to: 'sessions#destroy'
 
+  get '/newpackage', to: 'packages#new' 
+
+  post '/newpackage', to: 'packages#create'
+
   resources :users
+
+  resources :packages
 
 end
