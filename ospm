@@ -1,0 +1,31 @@
+function library {
+	if [[ "$1" == "save" ]]; then
+		echo $2 > /usr/local/lib/ospmLibSettings
+	else
+		echo "Module library is:"
+			cat /usr/local/lib/ospmLibSettings
+        fi
+
+}
+
+function help {
+        echo "Usage: ospm [-v] [-h] [library <> <>]"
+        echo "-v                Show version"
+        echo "-h                Show command line options"
+        echo "library $2 $3         Save XXX in library"
+}
+
+case "$1" in
+	"library" )
+     		library $2 $3
+		;;
+    "-v" )
+                echo "ospm 0.0.1"
+                ;; 
+
+    "-h" )
+                help 
+                ;;
+	*)
+        	echo "command not found"; 
+esac
