@@ -14,4 +14,7 @@ class StaticPagesController < ApplicationController
   def Packages
   end
 
+  def MyPackages
+  end
+
 end

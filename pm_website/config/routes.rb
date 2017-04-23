@@ -12,6 +12,8 @@ Rails.application.routes.draw do
 
   get  '/support',    to: 'static_pages#Support'
 
+  get  '/mypackages',    to: 'static_pages#MyPackages'
+
   get  '/signup', to: 'users#new'
 
   get    '/login',   to: 'sessions#new'
