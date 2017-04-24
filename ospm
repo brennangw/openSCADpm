@@ -15,17 +15,59 @@ function help {
         echo "library $2 $3         Save XXX in library"
 }
 
+function install {
+	libLoc=$(cat /usr/local/lib/ospmLibSettings)
+	if [[ ! -z $libLoc ]]; then
+		slash=$(echo /)
+		deps=$(echo dependencies)
+		underscore_ospm=$(echo "_ospm")
+		echo "underscore_ospm below"
+		echo $underscore_ospm
+		saveLoc=$libLoc$slash$1$underscore_ospm
+		echo "save loc is below"
+		echo $saveLoc
+		if [ ! -d "$saveLoc" ]; then
+			git clone https://github.com/brennangw/ospm_hello.git $saveLoc
+			while read -r dep; do
+				dep_dir=$libLoc$slash$dep$underscore_ospm
+				echo $dep_dir
+				if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
+					if [ ! -d "$dep_dir$underscore_ospm" ]; then
+						echo "dep is"
+						echo $dep
+						source ospm install $dep
+					else
+						echo "$dep already installed"
+					fi
+				fi
+			done <$saveLoc$slash$deps
+
+		else
+			echo "$1 already installed"
+		fi
+
+
+	else
+		echo "Save the location of your installation library with: "
+		echo "ospm library <location>"
+		echo "ospm help has more information"
+	fi
+}
+
 case "$1" in
 	"library" )
      		library $2 $3
 		;;
+		"install" )
+			install $2
+		;;
     "-v" )
                 echo "ospm 0.0.1"
-                ;; 
+                ;;
 
     "-h" )
-                help 
+                help
                 ;;
 	*)
-        	echo "command not found"; 
+        	echo "command not found";
 esac
