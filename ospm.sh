@@ -22,21 +22,18 @@ function install {
 		deps=$(echo dependencies)
 		underscore_ospm=$(echo "_ospm")
 		saveLoc=$libLoc$slash$1-$2-$3
-		echo "save loc is below"
-		echo $saveLoc
-		echo $1
-		echo $2
-		echo $3
 		if [ ! -d "$saveLoc" ]; then
 			git clone -b $3  --single-branch --depth 1 https://github.com/$1/$2 $saveLoc
 			# git clone https://github.com/$1/$2.git $saveLoc
-			while read -r dep; do
-				echo $dep
-				dep_dir=$libLoc$slash$dep
-				if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
-						source ospm.sh install $dep
-				fi
-			done <$saveLoc$slash$deps
+			if [ -f "$saveLoc$slash$deps" ]; then
+				while read -r dep; do
+					echo $dep
+					dep_dir=$libLoc$slash$dep
+					if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
+							source ospm.sh install $dep
+					fi
+				done <$saveLoc$slash$deps
+			fi
 
 		else
 			echo "$1-$2-$3 already installed"
