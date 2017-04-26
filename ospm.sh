@@ -1,18 +1,28 @@
+# success = green
+# warning or err = red
+# help or neutral things = cyan
+NC='\033[0m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+
+
 function library {
 	if [[ "$1" == "save" ]]; then
-		echo $2 > /usr/local/lib/ospmLibSettings
+		printf "${GREEN}$2${NC}\n" > /usr/local/lib/ospmLibSettings
 	else
-		echo "Module library is:"
-			cat /usr/local/lib/ospmLibSettings
+		printf "${YELLOW}Module library is:\n${NC}"
+			output=$(cat /usr/local/lib/ospmLibSettings)
+		printf "${YELLOW}$output\n${NC}"	
         fi
 
 }
 
 function help {
-        echo "Usage: ospm [-v] [-h] [library <> <>]"
-        echo "-v                Show version"
-        echo "-h                Show command line options"
-        echo "library $2 $3         Save XXX in library"
+        printf "${YELLOW}Usage: ospm [-v] [-h] [library <> <>]\n${NC}"
+        printf "${YELLOW}-v                Show version\n${NC}"
+        printf "${YELLOW}-h                Show command line options\n${NC}"
+        printf "${YELLOW}library $2 $3         Save XXX in library\n${NC}"
 }
 
 function install {
@@ -25,9 +35,10 @@ function install {
 		if [ ! -d "$saveLoc" ]; then
 			git clone -b $3  --single-branch --depth 1 https://github.com/$1/$2 $saveLoc
 			# git clone https://github.com/$1/$2.git $saveLoc
+
 			if [ -f "$saveLoc$slash$deps" ]; then
 				while read -r dep; do
-					echo $dep
+					printf "${YELLOW}$dep\n${NC}"
 					dep_dir=$libLoc$slash$dep
 					if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
 							source ospm.sh install $dep
@@ -36,14 +47,14 @@ function install {
 			fi
 
 		else
-			echo "$1-$2-$3 already installed"
+			printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
 		fi
 
 
 	else
-		echo "Save the location of your installation library with: "
-		echo "ospm library <location>"
-		echo "ospm help has more information"
+		printf "${YELLOW}Save the location of your installation library with: \n${NC}"
+		printf "${YELLOW}ospm library <location>\n${NC}"
+		printf "${YELLOW}ospm help has more information\n${NC}"
 	fi
 }
 
@@ -55,12 +66,12 @@ case "$1" in
 			install $2 $3 $4
 		;;
     "-v" )
-                echo "ospm 0.0.1"
+                printf "${YELLOW}ospm 0.0.1\n${NC}"
                 ;;
 
     "-h" )
                 help
                 ;;
 	*)
-        	echo "command not found";
+        	printf "${RED}command not found\n${NC}";
 esac
