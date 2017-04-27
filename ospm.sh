@@ -9,11 +9,11 @@ RED='\033[0;31m'
 
 function library {
 	if [[ "$1" == "save" ]]; then
-		printf "${GREEN}$2${NC}\n" > /usr/local/lib/ospmLibSettings
+		printf "$2\n" > /usr/local/lib/ospmLibSettings
 	else
 		printf "${YELLOW}Module library is:\n${NC}"
 			output=$(cat /usr/local/lib/ospmLibSettings)
-		printf "${YELLOW}$output\n${NC}"	
+		printf "${YELLOW}$output\n${NC}"
         fi
 
 }
@@ -28,14 +28,7 @@ function help {
 function install {
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
 	if [[ ! -z $libLoc ]]; then
-		slash=$(echo /)
-		deps=$(echo dependencies)
-		underscore_ospm=$(echo "_ospm")
-		saveLoc=$libLoc$slash$1-$2-$3
-		if [ ! -d "$saveLoc" ]; then
-			git clone -b $3  --single-branch --depth 1 https://github.com/$1/$2 $saveLoc
-			# git clone https://github.com/$1/$2.git $saveLoc
-
+		if [[ "$1" == "list" ]]; then
 			if [ -f "$saveLoc$slash$deps" ]; then
 				while read -r dep; do
 					printf "${YELLOW}$dep\n${NC}"
@@ -43,11 +36,31 @@ function install {
 					if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
 							source ospm.sh install $dep
 					fi
-				done <$saveLoc$slash$deps
+				done <$2
 			fi
-
 		else
-			printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
+			slash=$(echo /)
+			deps=$(echo dependencies)
+			underscore_ospm=$(echo "_ospm")
+			saveLoc=$libLoc$slash$1-$2-$3
+			echo $saveLoc
+			if [ ! -d "$saveLoc" ]; then
+				git clone -b $3  --single-branch --depth 1 https://github.com/$1/$2 $saveLoc
+				# git clone https://github.com/$1/$2.git $saveLoc
+
+				if [ -f "$saveLoc$slash$deps" ]; then
+					while read -r dep; do
+						printf "${YELLOW}$dep\n${NC}"
+						dep_dir=$libLoc$slash$dep
+						if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
+								source ospm.sh install $dep
+						fi
+					done <$saveLoc$slash$deps
+				fi
+
+			else
+				printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
+			fi
 		fi
 
 
