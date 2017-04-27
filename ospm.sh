@@ -31,7 +31,9 @@ function install {
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
 	if [[ ! -z $libLoc ]]; then
 		if [[ "$1" == "list" ]]; then
-			if [ -f "$saveLoc$slash$deps" ]; then
+			echo "list"
+			echo $2
+			if [ -f "$2" ]; then
 				while read -r dep; do
 					printf "${YELLOW}$dep\n${NC}"
 					dep_dir=$libLoc$slash$dep

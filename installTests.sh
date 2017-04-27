@@ -216,11 +216,92 @@ else
 
   testComplete $currentTest
 
-  testsComplete $testsPassed $numberOfTests
+
 
   # currentTest="3"
   # testStart $currentTest "Install via list w/Dependencies"
   # testComplete $currentTest
 
+  #test 3
+
+  currentTest="3"
+  testStart $currentTest "Install via List w/Dependencies"
+
+  setUpStarting
+
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithoutDeps
+  fi
+
+  if [[ -d $fullDirPathOfPackageWithDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithDeps
+  fi
+
+  listName="opsmInstallTestingList"
+  if [[ -f $listName ]]; then
+    rm $listName
+  fi
+
+  touch $listName
+  echo "brennangw ospm_hello 0.4" > $listName
+
+  setUpComplete
+
+
+  testOperationsStarting
+  source ospm.sh install list $listName
+  testOperationsComplete
+
+  evaluationsStarting
+
+  T2evaluationsPassed=0
+
+  currentEval="B"
+  evaluationStarting currentEval
+
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    evaluationPassed currentEval
+    let "T2evaluationsPassed = $T2evaluationsPassed + 1"
+  else
+    evaluationFailed currentEval "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
+  fi
+
+
+  evaluationStarting currentEval
+
+
+
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    evaluationPassed currentEval
+    let "T2evaluationsPassed = $T2evaluationsPassed + 1"
+  else
+    evaluationFailed currentEval "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
+  fi
+
+  evaluationsComplete $T2evaluationsPassed "2"
+
+  if [[ "$T2evaluationsPassed" == "2" ]]; then
+    let "testsPassed = $testsPassed + 1"
+  fi
+
+  testTearDownStarting
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithoutDeps
+  fi
+
+  if [[ -d $fullDirPathOfPackageWithDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithDeps
+  fi
+
+  if [[ -f $listName ]]; then
+    rm $listName
+  fi
+
+  testTearDownComplete
+
+  testComplete $currentTest
+
+
+  testsComplete $testsPassed $numberOfTests
 
 fi

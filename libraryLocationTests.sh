@@ -4,7 +4,7 @@ echo -e "\n"
 if [ "$1" == "help" ]; then
 	echo "This runs a series of tests for library locations for ospm."
   echo ""
-  echo "required arguments are as follows:"
+  echo "Required arguments are as follows:"
   echo -e "1. the library location\n"
   echo ""
   echo "Tests"
