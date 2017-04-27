@@ -5,7 +5,7 @@ if [ "$1" == "help" ]; then
 	echo "This runs a series of tests for library locations for ospm."
   echo ""
   echo "required arguments are as follows:"
-  echo "1. the library location"
+  echo -e "1. the library location\n"
   echo ""
   echo "Tests"
   echo "Test 1: Saving"
@@ -97,7 +97,7 @@ else
 
   #Test operations
   echo "Test Operation(s): Starting"
-  result=$(source ospm.sh library)
+  result=$(source ospm.sh library clean)
   echo "Test Operation(s): Complete"
   echo -e "\n"
 
