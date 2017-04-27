@@ -60,9 +60,8 @@ function evaluationStarting {
   echo "Evaluation $1: Starting"
 }
 
-function evaluationComplete {
-  echo "Evaluation $1: Complete"
-  echo "$2 of $3 evaluations passed."
+function evaluationsComplete {
+  echo "$1 of $2 evaluations passed."
 }
 
 function testComplete {
@@ -108,8 +107,9 @@ else
   fi
   slash=$(echo /)
   fullDirPathOfPackageWithoutDeps=$libPath$slash$dirOfPackageWithoutDeps
+  fullDirPathOfPackageWithDeps=$libPath$slash$dirOfPackageWithDeps
 
-
+  #test 1
   currentTest="1"
   testStart $currentTest "Install w/no Dependencies"
   setUpStarting
@@ -137,7 +137,7 @@ else
     evaluationFailed "A" "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
   fi
 
-  evaluationComplete "A" $T1evaluationsPassed "1"
+  evaluationsComplete $T1evaluationsPassed "1"
 
   evaluationsComplete
 
@@ -149,13 +149,78 @@ else
 
   testComplete $currentTest
 
+
+  #test 2
+
   currentTest="2"
   testStart $currentTest "Install w/Dependencies"
+
+  setUpStarting
+
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithoutDeps
+  fi
+
+  if [[ -d $fullDirPathOfPackageWithDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithDeps
+  fi
+
+  setUpComplete
+
+
+  testOperationsStarting
+  source ospm.sh install $packageWithDeps
+  testOperationsComplete
+
+  evaluationsStarting
+
+  T2evaluationsPassed=0
+
+  currentEval="B"
+  evaluationStarting currentEval
+
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    evaluationPassed currentEval
+    let "T2evaluationsPassed = $T2evaluationsPassed + 1"
+  else
+    evaluationFailed currentEval "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
+  fi
+
+
+  evaluationStarting currentEval
+
+
+
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    evaluationPassed currentEval
+    let "T2evaluationsPassed = $T2evaluationsPassed + 1"
+  else
+    evaluationFailed currentEval "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
+  fi
+
+  evaluationsComplete $T2evaluationsPassed "2"
+
+  if [[ "$T2evaluationsPassed" == "2" ]]; then
+    let "testsPassed = $testsPassed + 1"
+  fi
+
+  testTearDownStarting
+  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithoutDeps
+  fi
+
+  if [[ -d $fullDirPathOfPackageWithDeps ]]; then
+    rm -rf $fullDirPathOfPackageWithDeps
+  fi
+  testTearDownComplete
+
   testComplete $currentTest
 
-  currentTest="3"
-  testStart $currentTest "Install via list w/Dependencies"
-  testComplete $currentTest
+  testsComplete $testsPassed $numberOfTests
+
+  # currentTest="3"
+  # testStart $currentTest "Install via list w/Dependencies"
+  # testComplete $currentTest
 
 
 fi
