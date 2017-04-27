@@ -93,7 +93,7 @@ echo -e "\nThis is the install tester.\n"
 if [ "$1" == help ]; then
   echo -e "This runs a series of tests for installig packages with ospm.\n"
   echo -e "Optional arguments are as follows:"
-  echo -e "1. the libaray location."
+  echo -e "1. the library location."
   echo -e "\nTests"
   echo -e "Test 1: Install w/no dependencies"
   echo -e "Test 2: Install w/dependencies"
@@ -102,11 +102,10 @@ if [ "$1" == help ]; then
 else
   if [[ ! -z $1 ]]; then
     source ospm.sh library save $1
+    libPath=$1
   else
-    1=$(source ospm library get)
+    libPath=$(source ospm.sh library clean)
   fi
-
-  libPath=$1
   slash=$(echo /)
   fullDirPathOfPackageWithoutDeps=$libPath$slash$dirOfPackageWithoutDeps
 

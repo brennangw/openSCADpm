@@ -19,7 +19,10 @@ else
   numberOfTests=2
   #location to save the library location
   lsll=/usr/local/lib/ospmLibSettings
-
+  savedLib="no"
+  if [ -f $lsll ]; then
+    savedLib="yes"
+  fi
 
   echo "Your libaray location is $1"
   echo "Your location to save libaray location is $lsll"
@@ -30,7 +33,10 @@ else
 
   #Setup
   echo "Setup: Starting"
+  userLSLL="notSet"
   if [ -f $lsll ]; then
+    echo "removing old lsll"
+    userLSLL=$(cat $lsll)
     rm $lsll
   fi
   echo "Setup: Complete"
@@ -74,6 +80,12 @@ else
   echo "Test Teardown: Starting"
   if [ -f $lsll ]; then
     rm $lsll
+    if [ "$userLSLL" != "notSet" ]; then
+      touch $lsll
+      echo "restore"
+      echo $userLSLL > $lsll
+    fi
+
   fi
   echo "Test Teardown: Complete"
   echo -e "\n"
@@ -85,7 +97,9 @@ else
   echo -e "\n"
   #Setup
   echo "Setup: Starting"
+  userLSLL="notSet"
   if [ -f $lsll ]; then
+    userLSLL=$(cat $lsll)
     rm $lsll
   fi
 
@@ -134,12 +148,20 @@ else
   echo "Test Teardown: Starting"
   if [ -f $lsll ]; then
     rm $lsll
+    if [ "$userLSLL" != "notSet" ]; then
+      touch $lsll
+      echo $userLSLL > $lsll
+    fi
   fi
   echo "Test Teardown: Complete"
 
   echo -e "\n"
   echo "Test 2: Complete"
   echo -e "\n"
+
+  if [ "$savedLib" == "yes" ]; then
+    echo $1 > $lsll
+  fi
 
   echo "Tests Finshed"
   echo "$testsPassed of $numberOfTests passed."
