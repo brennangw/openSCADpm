@@ -10,11 +10,13 @@ RED='\033[0;31m'
 function library {
 	if [[ "$1" == "save" ]]; then
 		printf "$2\n" > /usr/local/lib/ospmLibSettings
+	elif [[ "$1" == "clean" ]]; then
+		cat /usr/local/lib/ospmLibSettings
 	else
 		printf "${YELLOW}Module library is:\n${NC}"
 			output=$(cat /usr/local/lib/ospmLibSettings)
 		printf "${YELLOW}$output\n${NC}"
-        fi
+  fi
 
 }
 
