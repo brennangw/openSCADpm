@@ -55,7 +55,7 @@ function help_more {
 		case "$1" in
 		"library" )
 					printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
-	        		printf "${YELLOW}library <show>                Show library path\n${NC}"
+	        printf "${YELLOW}library <show>                Show library path\n${NC}"
 					;;
 		"install" )
 					printf "${YELLOW}install <author> <package name> <version>       Install package(s)\n${NC}"
@@ -119,7 +119,10 @@ function parse {
   elif [ $1 =="save" ]; then
     while read -r line; do
     if [[ $line =~ $regex ]]; then
-        echo "${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}" >> $3
+        $requirment="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}"
+        if ! grep -Fxq $requirment $3; then
+          echo "$requirment" >> $3
+        fi
     fi
     done < $2
   fi
