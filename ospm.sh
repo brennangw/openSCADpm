@@ -50,7 +50,7 @@ function help_more {
 	# check if there is a second argu
 	# if yes, match cases
 	# if no, call help
-	
+
 	if [ -z "$1" ]; then
 		case "$1" in
 		"library" )
@@ -68,7 +68,7 @@ function help_more {
 		esac
 	else
 		help
-	fi 
+	fi
 }
 
 #depmap
@@ -175,6 +175,23 @@ function uninstall {
 	fi
 }
 
+function parse {
+  regex="\s*include <([A-Za-z0-9_]+)-([A-Za-z0-9_]+)-([A-Za-z0-9_\.]+)"
+  if [ $1 =="install" ]; then
+    while read -r line; do
+    if [[ $line =~ $regex ]]; then
+        source ospm.sh install "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
+    fi
+    done < $2
+  elif [ $1 =="save" ]; then
+    while read -r line; do
+    if [[ $line =~ $regex ]]; then
+        echo "${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}" >> $3
+    fi
+    done < $2
+
+}
+
 function install {
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
 	if [[ ! -z $libLoc ]]; then
@@ -228,14 +245,14 @@ case "$1" in
 	"install" )
 				install $2 $3 $4
 				;;
-
 	"uninstall" )
 				uninstall $2 $3 $4
 				;;
     "version" )
                 printf "${YELLOW}ospm 0.0.1\n${NC}"
                 ;;
-
+    "parse" )
+        parse $2 $3 $4
     "help" )
                 help
                 ;;
