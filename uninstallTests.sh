@@ -71,6 +71,7 @@ function testComplete {
 function evaluationPassed {
   echo "Evaluation $1: Passed"
 }
+
 function evaluationFailed {
   echo "Evaluation $1: Failed"
   echo "Detail: $2"
@@ -94,8 +95,8 @@ if [ "$1" == help ]; then
   echo -e "Optional arguments are as follows:"
   echo -e "1. the library location."
   echo -e "\nTests"
-  echo -e "Test 1: Uninstall w/no dependencies"
-  echo -e "Test 2: Uninstall w/dependencies"
+  echo -e "Test 1: Uninstall soft"
+  echo -e "Test 2: Uninstall force"
   return
 else
   if [[ ! -z $1 ]]; then
@@ -108,9 +109,9 @@ else
   fullDirPathOfPackageWithoutDeps=$libPath$slash$dirOfPackageWithoutDeps
   fullDirPathOfPackageWithDeps=$libPath$slash$dirOfPackageWithDeps
 
-  #test 1
+  test 1
   currentTest="1"
-  testStart $currentTest "Uninstall w/no Dependencies"
+  testStart $currentTest "Uninstall Soft"
   setUpStarting
   if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
     rm -rf $fullDirPathOfPackageWithoutDeps
@@ -129,7 +130,7 @@ else
   currentEval="A"
   evaluationStarting currentEval
 
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
+  if [[ ! -d $fullDirPathOfPackageWithoutDeps ]]; then
     evaluationPassed "A"
     let "testsPassed = $testsPassed + 1"
     let "T1evaluationsPassed = $T1evaluationsPassed + 1"
@@ -150,67 +151,43 @@ else
   testComplete $currentTest
 
 
-  #test 2
-
+  # test 2
   currentTest="2"
-  testStart $currentTest "Install w/Dependencies"
-
+  testStart $currentTest "Uninstall Force"
   setUpStarting
-
   if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
     rm -rf $fullDirPathOfPackageWithoutDeps
   fi
-
-  if [[ -d $fullDirPathOfPackageWithDeps ]]; then
-    rm -rf $fullDirPathOfPackageWithDeps
-  fi
-
+  source ospm.sh install $packageWithoutDeps
   setUpComplete
 
-
   testOperationsStarting
-  source ospm.sh install $packageWithDeps
+  packageWithoutDepsArr=($packageWithoutDeps)
+  source ospm.sh uninstall ${packageWithoutDepsArr[0]} ${packageWithoutDepsArr[1]} ${packageWithoutDepsArr[2]} force
   testOperationsComplete
 
   evaluationsStarting
 
-  T2evaluationsPassed=0
+  T1evaluationsPassed=0
 
-  currentEval="B"
+  currentEval="A"
   evaluationStarting currentEval
 
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
-    evaluationPassed currentEval
-    let "T2evaluationsPassed = $T2evaluationsPassed + 1"
-  else
-    evaluationFailed currentEval "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
-  fi
-
-
-  evaluationStarting currentEval
-
-
-
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
-    evaluationPassed currentEval
-    let "T2evaluationsPassed = $T2evaluationsPassed + 1"
-  else
-    evaluationFailed currentEval "Looked for installed dir" "Not found" $dirOfPackageWithoutDeps
-  fi
-
-  evaluationsComplete $T2evaluationsPassed "2"
-
-  if [[ "$T2evaluationsPassed" == "2" ]]; then
+  if [[ ! -d $fullDirPathOfPackageWithoutDeps ]]; then
+    evaluationPassed "A"
     let "testsPassed = $testsPassed + 1"
+    let "T1evaluationsPassed = $T1evaluationsPassed + 1"
+  else
+    evaluationFailed "A" "Looked for the lack of installed dir" "Was found at $fullDirPathOfPackageWithoutDeps" $dirOfPackageWithoutDeps
   fi
+
+  evaluationsComplete $T1evaluationsPassed "1"
+
+  evaluationsComplete
 
   testTearDownStarting
   if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
     rm -rf $fullDirPathOfPackageWithoutDeps
-  fi
-
-  if [[ -d $fullDirPathOfPackageWithDeps ]]; then
-    rm -rf $fullDirPathOfPackageWithDeps
   fi
   testTearDownComplete
 
