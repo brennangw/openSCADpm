@@ -52,14 +52,14 @@ function help {
 #params
 # 1,2,3 are the auth, name, version of the package to check.
 # 4 is the libaray path.
-function nonTargetRequirementMapBuilder {
+function otherRequirementMapBuilder {
 	packageDir="$1-$2-$3"
 	#pacakge not added to map, so add it.
-	if [[ -z "${hget otherDeps $packageDir}" ]]; then
+	if [[ -z `hget otherDeps $packageDir` ]]; then
 		libLoc=$4
 		hput otherDeps $packageDir
 		while read -r dep; do
-			nonTargetRequirementMapBuilder $dep $4
+			otherRequirementMapBuilder $dep $4
 		done < $libLoc$slash$packageDir$slash$deps
 	fi
 	#package already added to map so doing nothing.
@@ -68,7 +68,7 @@ function nonTargetRequirementMapBuilder {
 function targetRequirementMapBuilder {
 	packageDir="$1-$2-$3"
 	#pacakge not added to map, so add it.
-	if [[ -z "${hget targetDeps $packageDir}" ]]; then
+	if [[ -z `hget targetDeps $packageDir` ]]; then
 		libLoc=$4
 		hput tagetDeps $packageDir
 		while read -r dep; do
@@ -97,7 +97,7 @@ function uninstall {
 			fi
 		done
 
-		if [ beingUsed = true ] ; then
+		if [ $beingUsed ] ; then
 			echo "Becuase $1-$2-$3 is being used, it cannot be uninstalled."
 			return
 		fi
@@ -115,7 +115,7 @@ function uninstall {
 				name=$(echo $d | cut -d'-' -f2)
 				version=$(echo $d | cut -d'-' -f3)
 				#call requirementMapBuilder
-				requirementMapBuilder $auth $name $version
+				otherRequirementMapBuilder $auth $name $version
 			fi
 		done
 
@@ -124,14 +124,18 @@ function uninstall {
 		#the target package. This prevents removing directories not being used at all.
 
 		while read -r dep; do
-			stargetRequirementMapBuilder $dep
+			targetRequirementMapBuilder $dep
 		done < $libLoc$slash$1-$2-$3$slash$deps
 
 
 		#for all packages in the second map but not the first remove them.
 		for d in $( ls -d $libLoc$slash*/ ) ; do
 			#check deps file to see if it is an ospm module.
-			if [ ! -z "${hget targetDeps $packageDir}" ] && [ -z "${hget otherDeps $packageDir}" ]; then
+			echo "targetDeps"
+			echo `hget targetDeps $packageDir`
+			echo "otherDeps"
+			echo `hget otherDeps $packageDir`
+			if [ ! -z `hget targetDeps $packageDir` ] && [ -z `hget otherDeps $packageDir` ]; then
 				if [[ -f $d$slash$deps ]]; then
 					rm -r $d
 				fi
@@ -140,12 +144,15 @@ function uninstall {
 
 		#remove target package.
 		if [[ -f $libLoc$slash$packageDir$slash$deps ]]; then
+			echo "deleting $libLoc$slash$packageDir"
 			rm -r $libLoc$slash$packageDir
 		fi
 
 	else
 		echo "Uninstall unsuccesful some error with library location or input."
 	fi
+	hinit targetDeps
+	hinit otherDeps
 }
 
 function install {
