@@ -81,6 +81,7 @@ function uninstall {
 
 function install {
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
+	#install from list
 	if [[ ! -z $libLoc ]]; then
 		if [[ "$1" == "list" ]]; then
 			if [ -f "$2" ]; then
@@ -101,20 +102,27 @@ function install {
 			if [ ! -d "$saveLoc" ]; then
 				git clone -b $3  --single-branch --depth 1 https://github.com/$1/$2 $saveLoc
 				# git clone https://github.com/$1/$2.git $saveLoc
+			else
+				printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
+			fi
+
+				#required by file
+				requiredBy="requiredBy"
+				requiredByFile=$saveLoc$slash$requiredBy
+				if [ ! -z "$4" ] && [ ! -z "$5" ] && [ ! -z "$6" ] && ( ! grep -Fxq "$saveLoc$slash$4-$5-$6" $requiredByFile ); then
+					 echo "$4 $5 $6" >> $requiredByFile
+				fi
 
 				if [ -f "$saveLoc$slash$deps" ]; then
 					while read -r dep; do
 						printf "${YELLOW}$dep\n${NC}"
 						dep_dir=$libLoc$slash$dep
 						if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
-							source ospm.sh install $dep
+							depArr=($dep)
+							source ospm.sh install ${dep[0]} ${dep[1]} ${dep[2]} $1 $2 $3
 						fi
 					done <$saveLoc$slash$deps
 				fi
-
-			else
-				printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
-			fi
 		fi
 
 
@@ -130,7 +138,7 @@ case "$1" in
 	library $2 $3
 	;;
 	"install" )
-	install $2 $3 $4
+	install $2 $3 $4 $5 $6 $7
 	;;
 	"uninstall" )
 	uninstall $2 $3 $4 $5
