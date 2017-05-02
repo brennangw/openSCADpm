@@ -23,7 +23,6 @@ hget() {
 }
 
 
-
 function library {
 	if [[ "$1" == "save" ]]; then
 		printf "$2\n" > /usr/local/lib/ospmLibSettings
@@ -38,13 +37,13 @@ function library {
 }
 
 function help {
-        printf "${YELLOW}Usage: ospm [-v] [-h] [library <> <>]\n${NC}"
-        printf "${YELLOW}-v                Show version\n${NC}"
-        printf "${YELLOW}-h                Show command line options\n${NC}"
-        printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
-        printf "${YELLOW}library <show>         Show library path\n${NC}"
-        printf "${YELLOW}install <author> <package name> <version>         Install package(s)\n${NC}"
-        printf "${YELLOW}uninstall <author> <package name> <version>        Uninstall package(s)\n${NC}"
+        printf "${YELLOW}Usage: ospm [version] [help] [library <> <>] ... \n${NC}"
+        printf "${YELLOW}version                                        Show version\n${NC}"
+        printf "${YELLOW}help                                           Show command line options\n${NC}"
+        printf "${YELLOW}library <save> <path>                          Save library path\n${NC}"
+        printf "${YELLOW}library <show>                                 Show library path\n${NC}"
+        printf "${YELLOW}install <author> <package name> <version>      Install package(s)\n${NC}"
+        printf "${YELLOW}uninstall <author> <package name> <version>    Uninstall package(s)\n${NC}"
 }
 
 function help_more {
@@ -52,17 +51,17 @@ function help_more {
 	# if yes, match cases
 	# if no, call help
 	
-	if [ -z "$1" ] then
+	if [ -z "$1" ]; then
 		case "$1" in
 		"library" )
 					printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
-	        		printf "${YELLOW}library <show>         Show library path\n${NC}"
+	        		printf "${YELLOW}library <show>                Show library path\n${NC}"
 					;;
 		"install" )
-					printf "${YELLOW}install <author> <package name> <version>         Install package(s)\n${NC}"
+					printf "${YELLOW}install <author> <package name> <version>       Install package(s)\n${NC}"
 					;;
 	    "uninstall" )
-					printf "${YELLOW}uninstall <author> <package name> <version>        Uninstall package(s)\n${NC}"
+					printf "${YELLOW}uninstall <author> <package name> <version>     Uninstall package(s)\n${NC}"
 					;;
 		*)
 	        	printf "${RED}command not found\n${NC}";
@@ -120,13 +119,13 @@ function uninstall {
 		for d in $( ls -d $libLoc$slash*/ ) ; do #this wont work :(
 			if grep -Fxq "$1 $2 $3" $d$deps
 			then
-				echo "$1-$2-$3 is being used in $d"
+				printf "${YELLOW}$1-$2-$3 is being used in $d ${NC}"
 				beingUsed=true
 			fi
 		done
 
 		if [ beingUsed = true ] ; then
-			echo "Becuase $1-$2-$3 is being used, it cannot be uninstalled."
+			printf "${RED}Becuase $1-$2-$3 is being used, it cannot be uninstalled.${NC}"
 			return
 		fi
 
@@ -172,7 +171,7 @@ function uninstall {
 		fi
 
 	else
-		echo "Uninstall unsuccesful some error with library location or input."
+		printf "${RED}Uninstall unsuccesful some error with library location or input.${NC}"
 	fi
 }
 
@@ -233,11 +232,11 @@ case "$1" in
 	"uninstall" )
 				uninstall $2 $3 $4
 				;;
-    "-v" )
+    "version" )
                 printf "${YELLOW}ospm 0.0.1\n${NC}"
                 ;;
 
-    "-h" )
+    "help" )
                 help
                 ;;
     "help" )
