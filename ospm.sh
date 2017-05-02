@@ -9,6 +9,20 @@ RED='\033[0;31m'
 slash="/"
 deps="dependencies"
 
+#map functions so we can support bash 3
+hinit() {
+    rm -f /tmp/hashmap.$1
+}
+
+hput() {
+    echo "$2 $3" >> /tmp/hashmap.$1
+}
+
+hget() {
+    grep "^$2 " /tmp/hashmap.$1 | awk '{ print $2 };'
+}
+
+
 
 function library {
 	if [[ "$1" == "save" ]]; then
@@ -31,8 +45,6 @@ function help {
 }
 
 #depmap
-declare -A nonTargetRequiredPackages
-declare -A targetRequiredPackages
 
 
 #uninstallHelper
@@ -43,9 +55,9 @@ declare -A targetRequiredPackages
 function nonTargetRequirementMapBuilder {
 	packageDir="$1-$2-$3"
 	#pacakge not added to map, so add it.
-	if [[ -z "${nonTargetRequiredPackages[$packageDir]}" ]]; then
+	if [[ -z "${hget otherDeps $packageDir}" ]]; then
 		libLoc=$4
-		nonTargetRequiredPackages[$packageDir]=True
+		hput otherDeps $packageDir
 		while read -r dep; do
 			nonTargetRequirementMapBuilder $dep $4
 		done < $libLoc$slash$packageDir$slash$deps
@@ -56,9 +68,9 @@ function nonTargetRequirementMapBuilder {
 function targetRequirementMapBuilder {
 	packageDir="$1-$2-$3"
 	#pacakge not added to map, so add it.
-	if [[ -z "${targetRequiredPackages[$packageDir]}" ]]; then
+	if [[ -z "${hget targetDeps $packageDir}" ]]; then
 		libLoc=$4
-		targetRequiredPackages[$packageDir]=True
+		hput tagetDeps $packageDir
 		while read -r dep; do
 			targetRequirementMapBuilder $dep $4
 		done < $libLoc$slash$packageDir$slash$deps
@@ -67,15 +79,18 @@ function targetRequirementMapBuilder {
 }
 
 function uninstall {
+	echo "uninstall"
+	hinit targetDeps
+	hinit otherDeps
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
 	packageDir="$1-$2-$3"
 	#some safety
-	if [ ! -z $libLoc ] && [ "$libLoc" != "/" ] && [ ! -z $1 ] && [ ! -z $2 ] && [! -z $3]; then
+	if [ ! -z $libLoc ] && [ "$libLoc" != "/" ] && [ ! -z $1 ] && [ ! -z $2 ] && [ ! -z $3 ]; then
 		#for each package check if the target package is a requirement
 		#if so it is an easy stop (show all for ease) with little processing.
 		beingUsed=false
 		for d in $( ls -d $libLoc$slash*/ ) ; do #this wont work :(
-			if grep -Fxq "$1 $2 $3" $d$slash$deps
+			if grep -Fxq "$1 $2 $3" $d$deps
 			then
 				echo "$1-$2-$3 is being used in $d"
 				beingUsed=true
@@ -116,16 +131,16 @@ function uninstall {
 		#for all packages in the second map but not the first remove them.
 		for d in $( ls -d $libLoc$slash*/ ) ; do
 			#check deps file to see if it is an ospm module.
-			if [ ! -z "${targetRequiredPackages[$packageDir]}" ] && [ -z "${nonTargetRequiredPackages[$packageDir]}" ]; then
+			if [ ! -z "${hget targetDeps $packageDir}" ] && [ -z "${hget otherDeps $packageDir}" ]; then
 				if [[ -f $d$slash$deps ]]; then
-					rm -rf $d
+					rm -r $d
 				fi
 			fi
 		done
 
 		#remove target package.
 		if [[ -f $libLoc$slash$packageDir$slash$deps ]]; then
-			rm -rf $libLoc$slash$packageDir
+			rm -r $libLoc$slash$packageDir
 		fi
 
 	else
