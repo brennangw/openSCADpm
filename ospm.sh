@@ -22,7 +22,35 @@ function help {
         printf "${YELLOW}Usage: ospm [-v] [-h] [library <> <>]\n${NC}"
         printf "${YELLOW}-v                Show version\n${NC}"
         printf "${YELLOW}-h                Show command line options\n${NC}"
-        printf "${YELLOW}library $2 $3         Save XXX in library\n${NC}"
+        printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
+        printf "${YELLOW}library <show>         Show library path\n${NC}"
+        printf "${YELLOW}install <author> <package name> <version>         Install package(s)\n${NC}"
+        printf "${YELLOW}uninstall <author> <package name> <version>        Uninstall package(s)\n${NC}"
+}
+
+function help_more {
+	# check if there is a second argu
+	# if yes, match cases
+	# if no, call help
+	
+	if [ -z "$1" ] then
+		case "$1" in
+		"library" )
+					printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
+	        		printf "${YELLOW}library <show>         Show library path\n${NC}"
+					;;
+		"install" )
+					printf "${YELLOW}install <author> <package name> <version>         Install package(s)\n${NC}"
+					;;
+	    "uninstall" )
+					printf "${YELLOW}uninstall <author> <package name> <version>        Uninstall package(s)\n${NC}"
+					;;
+		*)
+	        	printf "${RED}command not found\n${NC}";
+		esac
+	else
+		help
+	fi 
 }
 
 function install {
@@ -60,11 +88,11 @@ function install {
 
 case "$1" in
 	"library" )
-     		library $2 $3
-		;;
-		"install" )
-			install $2 $3 $4
-		;;
+     			library $2 $3
+				;;
+	"install" )
+				install $2 $3 $4
+				;;
     "-v" )
                 printf "${YELLOW}ospm 0.0.1\n${NC}"
                 ;;
@@ -72,6 +100,9 @@ case "$1" in
     "-h" )
                 help
                 ;;
+    "help" )
+				help_more
+				;;
 	*)
         	printf "${RED}command not found\n${NC}";
 esac
