@@ -122,6 +122,7 @@ function parse {
         echo "${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}" >> $3
     fi
     done < $2
+  fi
 
 }
 
@@ -187,20 +188,21 @@ case "$1" in
 				install $2 $3 $4
 				;;
 	"uninstall" )
-				uninstall $2 $3 $4
+				uninstall $2 $3 $4 $5
 				;;
     "version" )
                 printf "${YELLOW}ospm 0.0.1\n${NC}"
                 ;;
     "parse" )
         parse $2 $3 $4
+        ;;
     "help" )
                 help
                 ;;
     "help" )
 				help_more
 				;;
-	install $2 $3 $4 $5 $6 $7
+	"install") $2 $3 $4 $5 $6 $7
 	;;
 
 	*)
