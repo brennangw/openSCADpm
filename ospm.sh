@@ -23,7 +23,6 @@ hget() {
 }
 
 
-
 function library {
 	if [[ "$1" == "save" ]]; then
 		printf "$2\n" > /usr/local/lib/ospmLibSettings
@@ -38,10 +37,38 @@ function library {
 }
 
 function help {
-	printf "${YELLOW}Usage: ospm [-v] [-h] [library <> <>]\n${NC}"
-	printf "${YELLOW}-v                Show version\n${NC}"
-	printf "${YELLOW}-h                Show command line options\n${NC}"
-	printf "${YELLOW}library $2 $3         Save XXX in library\n${NC}"
+        printf "${YELLOW}Usage: ospm [version] [help] [library <> <>] ... \n${NC}"
+        printf "${YELLOW}version                                        Show version\n${NC}"
+        printf "${YELLOW}help                                           Show command line options\n${NC}"
+        printf "${YELLOW}library <save> <path>                          Save library path\n${NC}"
+        printf "${YELLOW}library <show>                                 Show library path\n${NC}"
+        printf "${YELLOW}install <author> <package name> <version>      Install package(s)\n${NC}"
+        printf "${YELLOW}uninstall <author> <package name> <version>    Uninstall package(s)\n${NC}"
+}
+
+function help_more {
+	# check if there is a second argu
+	# if yes, match cases
+	# if no, call help
+
+	if [ -z "$1" ]; then
+		case "$1" in
+		"library" )
+					printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
+	        printf "${YELLOW}library <show>                Show library path\n${NC}"
+					;;
+		"install" )
+					printf "${YELLOW}install <author> <package name> <version>       Install package(s)\n${NC}"
+					;;
+	    "uninstall" )
+					printf "${YELLOW}uninstall <author> <package name> <version>     Uninstall package(s)\n${NC}"
+					;;
+		*)
+	        	printf "${RED}command not found\n${NC}";
+		esac
+	else
+		help
+	fi
 }
 
 function uninstall {
@@ -50,7 +77,7 @@ function uninstall {
 	#some safety
 	if [ ! -z $libLoc ] && [ "$libLoc" != "/" ] && [ ! -z $1 ] && [ ! -z $2 ] && [ ! -z $3 ]; then
 		#for each package check if the target package is a requirement
-		#if so it is an easy stop (show all for ease) with little processing.
+		#if so it is an easy stop (show all for ease) with little processing
 
 		beingUsed=false
 		echo "dollar four is $4"
@@ -62,6 +89,7 @@ function uninstall {
 					beingUsed=true
 				fi
 			done
+
 		fi
 
 		if [[ $beingUsed = true ]]; then
@@ -74,9 +102,32 @@ function uninstall {
 				fi
 		fi
 
+
 		rm -rf $libLoc$slash$packageDir
 
 	fi
+}
+
+function parse {
+  regex="\s*include <([A-Za-z0-9_]+)-([A-Za-z0-9_]+)-([A-Za-z0-9_\.]+)"
+  while read -r line; do
+    if [[ $line =~ $regex ]]; then
+      echo $line
+      a=${BASH_REMATCH[1]}
+      b=${BASH_REMATCH[2]}
+      c=${BASH_REMATCH[3]}
+      echo $a $b $c
+      if [ $1 == "install" ]; then
+          source ospm.sh install $a $b $c
+      fi
+      if [ $1 == "save" ]; then
+        if ! grep -Fxq "$a $b $c" $3 ; then
+         echo "$a $b $c" >> $3
+        fi
+      fi
+    fi
+  done < $2
+
 }
 
 function install {
@@ -135,21 +186,29 @@ function install {
 
 case "$1" in
 	"library" )
-	library $2 $3
-	;;
+     			library $2 $3
+				;;
 	"install" )
-	install $2 $3 $4 $5 $6 $7
-	;;
+				install $2 $3 $4
+				;;
 	"uninstall" )
-	uninstall $2 $3 $4 $5
-	;;
-	"-v" )
-	printf "${YELLOW}ospm 0.0.1\n${NC}"
+				uninstall $2 $3 $4 $5
+				;;
+    "version" )
+                printf "${YELLOW}ospm 0.0.1\n${NC}"
+                ;;
+    "parse" )
+        parse $2 $3 $4
+        ;;
+    "help" )
+                help
+                ;;
+    "help" )
+				help_more
+				;;
+	"install") $2 $3 $4 $5 $6 $7
 	;;
 
-	"-h" )
-	help
-	;;
 	*)
 	printf "${RED}command not found\n${NC}";
 esac
