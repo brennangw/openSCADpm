@@ -110,22 +110,23 @@ function uninstall {
 
 function parse {
   regex="\s*include <([A-Za-z0-9_]+)-([A-Za-z0-9_]+)-([A-Za-z0-9_\.]+)"
-  if [ $1 =="install" ]; then
-    while read -r line; do
+  while read -r line; do
     if [[ $line =~ $regex ]]; then
-        source ospm.sh install "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
-    fi
-    done < $2
-  elif [ $1 =="save" ]; then
-    while read -r line; do
-    if [[ $line =~ $regex ]]; then
-        $requirment="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}"
-        if ! grep -Fxq $requirment $3; then
-          echo "$requirment" >> $3
+      echo $line
+      a=${BASH_REMATCH[1]}
+      b=${BASH_REMATCH[2]}
+      c=${BASH_REMATCH[3]}
+      echo $a $b $c
+      if [ $1 == "install" ]; then
+          source ospm.sh install $a $b $c
+      fi
+      if [ $1 == "save" ]; then
+        if ! grep -Fxq "$a $b $c" $3 ; then
+         echo "$a $b $c" >> $3
         fi
+      fi
     fi
-    done < $2
-  fi
+  done < $2
 
 }
 
