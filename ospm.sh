@@ -50,12 +50,12 @@ function help_more {
 	# check if there is a second argu
 	# if yes, match cases
 	# if no, call help
-	
+
 	if [ -z "$1" ]; then
 		case "$1" in
 		"library" )
 					printf "${YELLOW}library <save> <path>         Save library path\n${NC}"
-	        		printf "${YELLOW}library <show>                Show library path\n${NC}"
+	        printf "${YELLOW}library <show>                Show library path\n${NC}"
 					;;
 		"install" )
 					printf "${YELLOW}install <author> <package name> <version>       Install package(s)\n${NC}"
@@ -68,115 +68,70 @@ function help_more {
 		esac
 	else
 		help
-	fi 
-}
-
-#depmap
-
-
-#uninstallHelper
-#recusively builds a map of required packages based on requirement graphs.
-#params
-# 1,2,3 are the auth, name, version of the package to check.
-# 4 is the libaray path.
-function nonTargetRequirementMapBuilder {
-	packageDir="$1-$2-$3"
-	#pacakge not added to map, so add it.
-	if [[ -z "${hget otherDeps $packageDir}" ]]; then
-		libLoc=$4
-		hput otherDeps $packageDir
-		while read -r dep; do
-			nonTargetRequirementMapBuilder $dep $4
-		done < $libLoc$slash$packageDir$slash$deps
 	fi
-	#package already added to map so doing nothing.
-}
-
-function targetRequirementMapBuilder {
-	packageDir="$1-$2-$3"
-	#pacakge not added to map, so add it.
-	if [[ -z "${hget targetDeps $packageDir}" ]]; then
-		libLoc=$4
-		hput tagetDeps $packageDir
-		while read -r dep; do
-			targetRequirementMapBuilder $dep $4
-		done < $libLoc$slash$packageDir$slash$deps
-	fi
-	#package already added to map so doing nothing.
 }
 
 function uninstall {
-	echo "uninstall"
-	hinit targetDeps
-	hinit otherDeps
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
 	packageDir="$1-$2-$3"
 	#some safety
 	if [ ! -z $libLoc ] && [ "$libLoc" != "/" ] && [ ! -z $1 ] && [ ! -z $2 ] && [ ! -z $3 ]; then
 		#for each package check if the target package is a requirement
-		#if so it is an easy stop (show all for ease) with little processing.
+		#if so it is an easy stop (show all for ease) with little processing
+
 		beingUsed=false
-		for d in $( ls -d $libLoc$slash*/ ) ; do #this wont work :(
-			if grep -Fxq "$1 $2 $3" $d$deps
-			then
-				printf "${YELLOW}$1-$2-$3 is being used in $d ${NC}"
-				beingUsed=true
-			fi
-		done
-
-		if [ beingUsed = true ] ; then
-			printf "${RED}Becuase $1-$2-$3 is being used, it cannot be uninstalled.${NC}"
-			return
-		fi
-
-		#from here we know that at least the target will be uninstalled.
-
-		#build a map of all packages that are diretcly or indirectly required by
-		#all packages besides the target package.
-
-		for d in $( ls -d $libLoc$slash*/ ) ; do
-			#check deps file to see if it is an ospm module.
-			if [[ -f $d$slash$deps ]]; then
-				#split on dashes
-				auth=$(echo $d | cut -d'-' -f1)
-				name=$(echo $d | cut -d'-' -f2)
-				version=$(echo $d | cut -d'-' -f3)
-				#call requirementMapBuilder
-				requirementMapBuilder $auth $name $version
-			fi
-		done
-
-
-		#build a map of all packages that are diretcly or indirectly required by
-		#the target package. This prevents removing directories not being used at all.
-
-		while read -r dep; do
-			stargetRequirementMapBuilder $dep
-		done < $libLoc$slash$1-$2-$3$slash$deps
-
-
-		#for all packages in the second map but not the first remove them.
-		for d in $( ls -d $libLoc$slash*/ ) ; do
-			#check deps file to see if it is an ospm module.
-			if [ ! -z "${hget targetDeps $packageDir}" ] && [ -z "${hget otherDeps $packageDir}" ]; then
-				if [[ -f $d$slash$deps ]]; then
-					rm -r $d
+		echo "dollar four is $4"
+		if [[ $4 != "force" ]]; then
+			for d in $( ls -d $libLoc$slash*/ ) ; do #this wont work :(
+				if grep -Fxq "$1 $2 $3" $d$deps
+				then
+					echo "$1 $2 $3 is being used in $d"
+					beingUsed=true
 				fi
-			fi
-		done
+			done
 
-		#remove target package.
-		if [[ -f $libLoc$slash$packageDir$slash$deps ]]; then
-			rm -r $libLoc$slash$packageDir
 		fi
 
-	else
-		printf "${RED}Uninstall unsuccesful some error with library location or input.${NC}"
+		if [[ $beingUsed = true ]]; then
+			echo -n "Proceed with uninstall (y/n)? "
+				read answer
+				if echo "$answer" | grep -iq "^y" ; then
+				    rm -rf $libLoc$slash$packageDir
+				else
+				    echo "Ok, won't uninstall then."
+				fi
+		fi
+
+
+		rm -rf $libLoc$slash$packageDir
+
 	fi
+}
+
+function parse {
+  regex="\s*include <([A-Za-z0-9_]+)-([A-Za-z0-9_]+)-([A-Za-z0-9_\.]+)"
+  if [ $1 =="install" ]; then
+    while read -r line; do
+    if [[ $line =~ $regex ]]; then
+        source ospm.sh install "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"
+    fi
+    done < $2
+  elif [ $1 =="save" ]; then
+    while read -r line; do
+    if [[ $line =~ $regex ]]; then
+        $requirment="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]}"
+        if ! grep -Fxq $requirment $3; then
+          echo "$requirment" >> $3
+        fi
+    fi
+    done < $2
+  fi
+
 }
 
 function install {
 	libLoc=$(cat /usr/local/lib/ospmLibSettings)
+	#install from list
 	if [[ ! -z $libLoc ]]; then
 		if [[ "$1" == "list" ]]; then
 			if [ -f "$2" ]; then
@@ -197,20 +152,27 @@ function install {
 			if [ ! -d "$saveLoc" ]; then
 				git clone -b $3  --single-branch --depth 1 https://github.com/$1/$2 $saveLoc
 				# git clone https://github.com/$1/$2.git $saveLoc
+			else
+				printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
+			fi
+
+				#required by file
+				requiredBy="requiredBy"
+				requiredByFile=$saveLoc$slash$requiredBy
+				if [ ! -z "$4" ] && [ ! -z "$5" ] && [ ! -z "$6" ] && ( ! grep -Fxq "$saveLoc$slash$4-$5-$6" $requiredByFile ); then
+					 echo "$4 $5 $6" >> $requiredByFile
+				fi
 
 				if [ -f "$saveLoc$slash$deps" ]; then
 					while read -r dep; do
 						printf "${YELLOW}$dep\n${NC}"
 						dep_dir=$libLoc$slash$dep
 						if [ ! -z "$dep" ] && [ "$dep" != "\n" ]; then
-							source ospm.sh install $dep
+							depArr=($dep)
+							source ospm.sh install ${dep[0]} ${dep[1]} ${dep[2]} $1 $2 $3
 						fi
 					done <$saveLoc$slash$deps
 				fi
-
-			else
-				printf "${GREEN}$1-$2-$3 already installed$\n${NC}"
-			fi
 		fi
 
 
@@ -228,20 +190,24 @@ case "$1" in
 	"install" )
 				install $2 $3 $4
 				;;
-
 	"uninstall" )
-				uninstall $2 $3 $4
+				uninstall $2 $3 $4 $5
 				;;
     "version" )
                 printf "${YELLOW}ospm 0.0.1\n${NC}"
                 ;;
-
+    "parse" )
+        parse $2 $3 $4
+        ;;
     "help" )
                 help
                 ;;
     "help" )
 				help_more
 				;;
+	"install") $2 $3 $4 $5 $6 $7
+	;;
+
 	*)
 	printf "${RED}command not found\n${NC}";
 esac
