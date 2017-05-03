@@ -6,14 +6,16 @@ dirOfPackageWithoutDeps="brennangw-ospm_echo-0.1"
 setUpStartingMessage="Startup: Starting"
 setUpCompleteMessage="Setup: Complete"
 testOperationsStartingMessage="Test Operation(s): Starting"
-testOperationsCompleteMessage="Test Operation(s): Starting"
+testOperationsCompleteMessage="Test Operation(s): Complete"
 evaluationsStartingMessage="Evaluation(s): Starting"
 evaluationsCompleteMessage="Evaluation(s): Complete"
 testTearDownStartingMessage="Test Teardown: Starting"
 testTearDownCompleteMessage="Test Teardown: Complete"
+parseTestTarget="./parseTestTarget"
+parseTestDest="./parseTestDest"
 
 testsPassed=0
-numberOfTests=2
+numberOfTests=1
 
 function setUpComplete {
   echo "$setUpCompleteMessage"
@@ -89,14 +91,13 @@ function deleteList {
 }
 
 
-echo -e "\nThis is the uninstall tester.\n"
+echo -e "\nThis is the parse tester.\n"
 if [ "$1" == help ]; then
-  echo -e "This runs a series of tests for installig packages with ospm.\n"
+  echo -e "This runs a series of tests for parsing files with ospm.\n"
   echo -e "Optional arguments are as follows:"
   echo -e "1. the library location."
   echo -e "\nTests"
-  echo -e "Test 1: Uninstall soft"
-  echo -e "Test 2: Uninstall force"
+  echo -e "Test 1: Parse Save"
   return
 else
   if [[ ! -z $1 ]]; then
@@ -111,16 +112,15 @@ else
 
   test 1
   currentTest="1"
-  testStart $currentTest "Uninstall Soft"
+  testStart $currentTest "Parse Save"
   setUpStarting
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
-    rm -rf $fullDirPathOfPackageWithoutDeps
+  if [[ -f $parseTestDest ]]; then
+    rm $parseTestDest
   fi
-  source ospm.sh install $packageWithoutDeps
   setUpComplete
 
   testOperationsStarting
-  source ospm.sh uninstall $packageWithoutDeps
+  source ospm.sh parse save $parseTestTarget $parseTestDest
   testOperationsComplete
 
   evaluationsStarting
@@ -128,66 +128,55 @@ else
   T1evaluationsPassed=0
 
   currentEval="A"
-  evaluationStarting currentEval
+  evaluationStarting $currentEval
 
-  if [[ ! -d $fullDirPathOfPackageWithoutDeps ]]; then
-    evaluationPassed "A"
-    let "testsPassed = $testsPassed + 1"
+  if [[ -f $parseTestDest ]]; then
+    evaluationPassed $currentEval
     let "T1evaluationsPassed = $T1evaluationsPassed + 1"
   else
-    evaluationFailed "A" "Looked for the lack of installed dir" "Was found at $fullDirPathOfPackageWithoutDeps" $dirOfPackageWithoutDeps
+    evaluationFailed $currentEval "Looked for the parse save destination" "Was not found." $parseTestDest
   fi
 
-  evaluationsComplete $T1evaluationsPassed "1"
+  # currentEval="B"
+  # evaluationStarting $currentEval
+  #
+  # $lines=$(wc -l $parseTestDest)
+  # if  [[ "$lines" == "2" ]]; then
+  #   evaluationPassed $currentEval
+  #   let "T1evaluationsPassed = $T1evaluationsPassed + 1"
+  # else
+  #   evaluationFailed $currentEval "Checked the line count of $parseTestDest" "$lines" "2"
+  # fi
 
-  evaluationsComplete
+  currentEval="B"
+  evaluationStarting $currentEval
 
-  testTearDownStarting
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
-    rm -rf $fullDirPathOfPackageWithoutDeps
-  fi
-  testTearDownComplete
-
-  testComplete $currentTest
-
-
-  # test 2
-  currentTest="2"
-  testStart $currentTest "Uninstall Force"
-  setUpStarting
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
-    rm -rf $fullDirPathOfPackageWithoutDeps
-  fi
-  source ospm.sh install $packageWithoutDeps
-  setUpComplete
-
-  testOperationsStarting
-  packageWithoutDepsArr=($packageWithoutDeps)
-  source ospm.sh uninstall ${packageWithoutDepsArr[0]} ${packageWithoutDepsArr[1]} ${packageWithoutDepsArr[2]} force
-  testOperationsComplete
-
-  evaluationsStarting
-
-  T1evaluationsPassed=0
-
-  currentEval="A"
-  evaluationStarting currentEval
-
-  if [[ ! -d $fullDirPathOfPackageWithoutDeps ]]; then
-    evaluationPassed "A"
-    let "testsPassed = $testsPassed + 1"
+  if grep -Fxq "$packageWithoutDeps" $parseTestDest ; then
+    evaluationPassed $currentEval
     let "T1evaluationsPassed = $T1evaluationsPassed + 1"
   else
-    evaluationFailed "A" "Looked for the lack of installed dir" "Was found at $fullDirPathOfPackageWithoutDeps" $dirOfPackageWithoutDeps
+    evaluationFailed $currentEval "Looked for $packageWithoutDeps in $parseTestDest" "Was $(cat $parseTestDest)" "$packageWithoutDeps"
   fi
 
-  evaluationsComplete $T1evaluationsPassed "1"
+  currentEval="C"
+  evaluationStarting $currentEval
 
-  evaluationsComplete
+  if  grep -Fxq "$packageWithDeps" $parseTestDest ; then
+    evaluationPassed $currentEval
+    let "T1evaluationsPassed = $T1evaluationsPassed + 1"
+  else
+    evaluationFailed $currentEval "Looked for $packageWithDeps in $parseTestDest" "Was $(cat $parseTestDest)" "$packageWithDeps"
+  fi
+
+  evaluationsComplete $T1evaluationsPassed "3"
+
+  if [[ "$T1evaluationsPassed" == "3" ]]; then
+    let "testsPassed = $testsPassed + 1"
+  fi
 
   testTearDownStarting
-  if [[ -d $fullDirPathOfPackageWithoutDeps ]]; then
-    rm -rf $fullDirPathOfPackageWithoutDeps
+  if [[ -f $parseTestDest ]]; then
+    rm $parseTestDest
   fi
   testTearDownComplete
 
