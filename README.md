@@ -11,12 +11,14 @@ installation and managing of modules by allowing users to use terminal commands.
 to upload packages. It will also serve as a way for packages to be browsed and explained with a high level 
 description (this seems to be the norm for package managers).
 
+
 ## Synopsis
 The Installation section is just enough infor to get you up and running. 
 Much more informaiton available in the Usage section and the documentation file we have in this repo.
 
+
 ## OpenSCADpm Installation
-** This version of OpenSCADpm is only for Macs **
+** This version of OpenSCADpm is only for Macs and Linux/Unix **
 
 1. Install the lastest version of OpenSCADpm by visiting the website below and click the "DOWNLOAD OPENSCADPM" link.
 
@@ -24,21 +26,32 @@ Much more informaiton available in the Usage section and the documentation file 
 https://skp2140.github.io/openSCADpm/index.html
 ```
 
-2. Unzip the zip.file downloaded from the given website link above.
+2. A file named ospm will be downloaded.  
 
-3. Change the name of the opened folder from "openSCADpm-master" to "ospm."
-
-4. Open terminal, go to **the folder that contains "ospm" folder **, and enter the following command
+3. Open terminal, go to **the folder that contains the "ospm" file **, and enter the following command
 ```sh
-mv ospm /usr/local/lib/
+mv ospm /usr/local/bin/
 ```
-This command will move the ospm folder to the location /usr/local/lib/ folder, which allows the users 
+This command will move the ospm folder to the location /usr/local/bin/ folder, which allows the users 
 to used ospm from anywhere in the system without restriction. 
+
+4. Use the documentation below to find the path to the ospm libaray in your system.
+```sh
+https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Libraries
+```
+
+5. type the following in the terminal
+```sh
+ospm library save <path-to-ospm-library> 
+```
+
+6. You are all set!
 
 ## OpenSCADpm Package Installation and Usage
 
 There are two approaches to use ospm for package installing, uninstalling and other options: User 
 Script Approach and Package Name Approach. 
+
 
 ### User Script Approach
 You can create a user script (txt file recommended) that contains the dependencies of packages for 
@@ -81,15 +94,20 @@ This sample command will install ospm_hello v0.4 in your computer.
 
 ### More Commands
 
-Uninstall
+**Uninstall**
 ```sh
 ospm uninstall <author name> <package name> <package version number>
 ospm uninstall brennangw ospm_hello 0.4
 ```
 The command above will allow you to uninstall the package you do not want. 
 
+**Clean**
+```sh
+ospm clean
+```
+This command removes dependecies for the packages that have been uninstalled.
 
-Library
+**Library**
 ```sh
 ospm library <show>
 ospm library <save> <path>
@@ -97,18 +115,36 @@ ospm library <save> <path>
 "ospm library show" shows library path, while "ospm library save <path>" save the library path.
 
 
-Version
+**Version**
 ```sh
 ospm version
 ```
 This command shows the version information about the ospm installed in the system. 
 
-Help
+
+**Help**
 ```sh
 ospm help
 ```
 This command shows command line options, the corresponding explanations and usages. 
 
+***
+If the user inputs the following in the terminal,
+```sh
+ospm help
+```
+ospm will print out potential command options for the user. 
+
+
+If the user inputs commands that are not acceptable to the system, like
+```sh
+ospm ***????<or other commands>
+```
+
+ospm will print out:
+```sh
+-ospm: ***????<or other commands>: command not found
+```
 
 
 ## Contributing
