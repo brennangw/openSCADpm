@@ -19,7 +19,7 @@ Much more informaiton available in the Usage section and the documentation file 
 
 
 ## OpenSCADpm Installation
-** This version of OpenSCADpm is only for Macs and Linux/Unix **
+**This version of OpenSCADpm is only for Macs and Linux/Unix**
 
 1. Install the lastest version of OpenSCADpm by visiting the website below and click the "DOWNLOAD OPENSCADPM" link.
 
