@@ -1,16 +1,17 @@
 # OpenSCADpm
 
-Package Managers have become powerful tools that assist software engineers during their development process. 
-We found that there are no package managers for OpenSCAD Language, a language used for computer assisted 
-designing. Thus, we intend to create a package manager for OpenSCAD, akin to Node Package Manager (NPM) or 
-Ruby Gems, which will allow developers to more easily share and install modules. Furthermore, it will allow 
-users to manage dependencies. 
+OpenSCAD, a programming used for creating solid 3D CAD models and computer assisted designing. While package
+managers have become powerful tools that assist software engineers during their development process, we found
+that there are no package managers for OpenSCAD. Thus, OpenSCADpm, this package manager aims to serve OpenSCAD,
+akin to Node Package Manager (NPM) or Ruby Gems, which will allow developers to more easily share and install
+modules. Furthermore, it will allow users to manage dependencies. 
 
-To this end we want to create a command line tool and a website. The command line tool will be used for the 
+To this end we create a command line tool and a website. The command line tool will be used for the 
 installation and managing of modules by allowing users to use terminal commands. The website will allow users 
 to upload packages. It will also serve as a way for packages to be browsed and explained with a high level 
 description (this seems to be the norm for package managers).
 
+For more information about OpenSCAD, [Click here](http://www.openscad.org/about.html). 
 
 ## Synopsis
 The Installation section is just enough infor to get you up and running. 
@@ -49,8 +50,8 @@ ospm library save <path-to-ospm-library>
 
 ## OpenSCADpm Package Installation and Usage
 
-There are two approaches to use ospm for package installing, uninstalling and other options: User 
-Script Approach and Package Name Approach. 
+There are two approaches to use ospm for package installing, uninstalling and other options: **User 
+Script Approach** and **Package Name Approach**. 
 
 
 ### User Script Approach
@@ -99,13 +100,18 @@ This sample command will install ospm_hello v0.4 in your computer.
 ospm uninstall <author name> <package name> <package version number>
 ospm uninstall brennangw ospm_hello 0.4
 ```
-The command above will allow you to uninstall the package you do not want. 
+In each of the ospm packages, there is required-by file, which includes the dependency information
+of the current package - aka, the current package depends on these extra packages, and it needs
+these extra packages to run. The command above will not only remove the current package information 
+from the reqiured-by file, but also allow the user to uninstall the package you do not want. 
 
 **Clean**
 ```sh
 ospm clean
 ```
-This command removes dependecies for the packages that have been uninstalled.
+This command removes dependecies for the packages that have been uninstalled. Be more specific, the
+"clean" command will remove the package that has empty required-by file, which means the package is
+no longer needed by its original host packages, which does not exist in the system. 
 
 **Library**
 ```sh
@@ -163,8 +169,8 @@ If you would like to contrbute to this ospm,
 ## Credits
 
 Thank for all the hardwork we have done in the TSE Team, which include Jiaxin Su, Brennan Wallace,
-and Stan Pecency. Also, thank Prof. Kaiser from Columbia University provided us with precious suggestions about 
-how to better develop this package manager tool for OpenSCAD.
+and Stan Pecency. Also, thank Prof. Kaiser from Columbia University provided us with precious suggestions
+about how to better develop this package manager tool for OpenSCAD.
 
 
 ## License
